@@ -79,27 +79,33 @@ def optimal_interval(mean: float, std: float, scale: float, n_grid: int = 400):
     width_cost = WIDTH_COST_NUM / scale
     miss_cost = MISS_COST_NUM / scale
 
-    best = None
-    # search over candidate lows/highs around the mean +/- 4 std
+    if std <= 0:
+        return (mean, mean, 100.0)
+
+    # Vectorized version of the same grid search (same math as the original
+    # nested-loop/scalar-scipy-call implementation, just computed as arrays
+    # instead of ~n_grid^2 individual Python-level scipy calls, which was
+    # taking ~15-20s per player -- too slow once this runs for a full roster
+    # across multiple weeks).
     grid = np.linspace(mean - 4 * std, mean + 4 * std, n_grid)
-    for low in grid:
-        if low > mean + 2 * std:
-            continue
-        for high in grid:
-            if high <= low:
-                continue
-            width = high - low
-            # E[miss] = E[(low - X) | X<low]*P(X<low) + E[(X-high)|X>high]*P(X>high)
-            # closed form for truncated normal expectation of shortfall/excess
-            z_low = (low - mean) / std
-            z_high = (high - mean) / std
-            # E[(low - X)+] for X ~ N(mean, std): std * (phi(z_low) + z_low * Phi(z_low))
-            e_under = std * (norm.pdf(z_low) + z_low * norm.cdf(z_low)) if std > 0 else 0
-            # E[(X - high)+] for X ~ N(mean, std): std * (phi(z_high) - z_high * (1 - Phi(z_high)))
-            e_over = std * (norm.pdf(z_high) - z_high * (1 - norm.cdf(z_high))) if std > 0 else 0
-            exp_width_penalty = width * width_cost
-            exp_miss_penalty = (e_under + e_over) * miss_cost
-            exp_accuracy = 100 - exp_width_penalty - exp_miss_penalty
-            if best is None or exp_accuracy > best[2]:
-                best = (low, high, exp_accuracy)
-    return best
+    lows = grid[grid <= mean + 2 * std]
+
+    z_low_all = (lows - mean) / std
+    z_high_all = (grid - mean) / std
+    # E[(low - X)+] and E[(X - high)+] for X ~ N(mean, std), vectorized
+    e_under_all = std * (norm.pdf(z_low_all) + z_low_all * norm.cdf(z_low_all))
+    e_over_all = std * (norm.pdf(z_high_all) - z_high_all * (1 - norm.cdf(z_high_all)))
+
+    # Broadcast to every (low, high) pair, then mask out high <= low.
+    low_mat = lows[:, None]
+    high_mat = grid[None, :]
+    width_mat = high_mat - low_mat
+    exp_accuracy_mat = (100 - width_mat * width_cost
+                         - (e_under_all[:, None] + e_over_all[None, :]) * miss_cost)
+    exp_accuracy_mat = np.where(high_mat > low_mat, exp_accuracy_mat, -np.inf)
+
+    best_idx = np.unravel_index(np.argmax(exp_accuracy_mat), exp_accuracy_mat.shape)
+    best_low = low_mat[best_idx[0], 0]
+    best_high = high_mat[0, best_idx[1]]
+    best_acc = exp_accuracy_mat[best_idx]
+    return (best_low, best_high, best_acc)
