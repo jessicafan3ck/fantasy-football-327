@@ -37,8 +37,10 @@ from player_week_stats import (
 )
 from model import (
     empirical_bayes_blend, opponent_adjustment_offense, opponent_adjustment_defense,
-    recommend_interval,
+    recommend_interval, apply_news_mixture,
 )
+from news_signals import load_news_signals
+import os
 
 SCHEDULE_URL = 'https://raw.githubusercontent.com/nflverse/nfldata/master/data/games.csv'
 MIN_GAMES = 3          # require a real track record, not just a low-variance 2-game read --
@@ -58,11 +60,30 @@ def _opponent_map(sched26, week):
     return opp_of
 
 
-def _rank_slot(candidates: pd.DataFrame) -> pd.DataFrame:
+def _apply_news(row, news: pd.DataFrame):
+    """If this player has a news-signal row this week, mix the (mean, std)
+    toward the degraded scenario before it ever reaches optimal_interval --
+    this is what actually widens/lowers a range for a real, researched
+    risk, instead of hand-editing the output."""
+    if news is None or len(news) == 0:
+        return row['adj_mean'], row['std']
+    match = news[news['player'] == row['player_name']]
+    if len(match) == 0:
+        return row['adj_mean'], row['std']
+    r = match.iloc[0]
+    return apply_news_mixture(row['adj_mean'], row['std'], r['active_prob_estimate'],
+                               r['limited_mean_factor'])
+
+
+def _rank_slot(candidates: pd.DataFrame, news: pd.DataFrame = None) -> pd.DataFrame:
     """candidates needs: player_name, team, opponent, adj_mean, std, position."""
     if len(candidates) == 0:
         return candidates
     c = candidates.copy()
+    if news is not None and len(news):
+        mixed = c.apply(lambda r: _apply_news(r, news), axis=1)
+        c['adj_mean'] = mixed.apply(lambda t: t[0])
+        c['std'] = mixed.apply(lambda t: t[1])
     recs = c.apply(lambda r: recommend_interval(r['adj_mean'], r['std'], r['position']), axis=1)
     c['low'] = recs.apply(lambda d: d['low'])
     c['high'] = recs.apply(lambda d: d['high'])
@@ -74,7 +95,7 @@ def _rank_slot(candidates: pd.DataFrame) -> pd.DataFrame:
     return c.sort_values('combined_score', ascending=False)
 
 
-def optimize_week(predict_week: int, off26, kick26, def26, off25, sched26):
+def optimize_week(predict_week: int, off26, kick26, def26, off25, sched26, news: pd.DataFrame = None):
     off_blend = empirical_bayes_blend(off26, off25, predict_week)
     kick_blend = empirical_bayes_blend(kick26, kick26.iloc[0:0], predict_week)
     def_blend = empirical_bayes_blend(def26, def26.iloc[0:0], predict_week)
@@ -103,7 +124,7 @@ def optimize_week(predict_week: int, off26, kick26, def26, off25, sched26):
         cand['std'] = cand['blended_std']
         cand['position'] = slot
         results[slot] = _rank_slot(cand[['player_name', 'team', 'opponent', 'n_games', 'blended_mean',
-                                          'ratio', 'adj_mean', 'std', 'position']])
+                                          'ratio', 'adj_mean', 'std', 'position']], news=news)
 
     kick_blend = kick_blend[kick_blend['n_games'] >= MIN_GAMES].copy()
     kick_blend['opponent'] = kick_blend['team'].map(opp_of)
@@ -113,7 +134,7 @@ def optimize_week(predict_week: int, off26, kick26, def26, off25, sched26):
     kick_blend['std'] = kick_blend['blended_std']
     kick_blend['position'] = 'K'
     results['K'] = _rank_slot(kick_blend[['player_name', 'team', 'opponent', 'n_games', 'blended_mean',
-                                           'ratio', 'adj_mean', 'std', 'position']])
+                                           'ratio', 'adj_mean', 'std', 'position']], news=news)
 
     def_blend = def_blend[def_blend['n_games'] >= MIN_GAMES].copy()
     def_blend['opponent'] = def_blend['team'].map(opp_of)
@@ -124,7 +145,7 @@ def optimize_week(predict_week: int, off26, kick26, def26, off25, sched26):
     def_blend['std'] = def_blend['blended_std']
     def_blend['position'] = 'DEF'
     results['DEF'] = _rank_slot(def_blend[['player_name', 'team', 'opponent', 'n_games', 'blended_mean',
-                                            'ratio', 'adj_mean', 'std', 'position']])
+                                            'ratio', 'adj_mean', 'std', 'position']], news=news)
     return results
 
 
@@ -144,7 +165,12 @@ def main():
     off25 = build_offense_weekly(pbp25)
 
     predict_week = 5
-    results = optimize_week(predict_week, off26, kick26, def26, off25, sched26)
+    news_path = f'data/news_signals_week{predict_week}.csv'
+    news = load_news_signals(news_path) if os.path.exists(news_path) else None
+    if news is not None:
+        print(f"Loaded {len(news)} researched news-signal row(s) from {news_path} "
+              f"-- these will widen/shift affected players' ranges before scoring.")
+    results = optimize_week(predict_week, off26, kick26, def26, off25, sched26, news=news)
 
     best_lineup = []
     print("\n" + "=" * 100)

@@ -41,12 +41,25 @@ NEWS_SIGNAL_COLUMNS = [
     'role_note', 'source_urls', 'researched_on',
 ]
 
+# Optional column. active_prob_estimate's "degraded scenario" isn't always
+# the player being OUT -- it can be an environment risk (a teammate/QB
+# questionable) that lowers their efficiency without benching them. This
+# column lets a row say how severe that degraded scenario actually is,
+# instead of always assuming the model.py default (0.35x, calibrated for
+# "this player themselves is out/limited"). A backup-QB risk is nowhere
+# near that severe, so it gets its own, milder factor per row.
+LIMITED_MEAN_FACTOR_COLUMN = 'limited_mean_factor'
+DEFAULT_LIMITED_MEAN_FACTOR = 0.35
+
 
 def load_news_signals(path: str) -> pd.DataFrame:
     df = pd.read_csv(path)
     missing = set(NEWS_SIGNAL_COLUMNS) - set(df.columns)
     if missing:
         raise ValueError(f"news_signals file missing columns: {missing}")
+    if LIMITED_MEAN_FACTOR_COLUMN not in df.columns:
+        df[LIMITED_MEAN_FACTOR_COLUMN] = DEFAULT_LIMITED_MEAN_FACTOR
+    df[LIMITED_MEAN_FACTOR_COLUMN] = df[LIMITED_MEAN_FACTOR_COLUMN].fillna(DEFAULT_LIMITED_MEAN_FACTOR)
     return df
 
 
