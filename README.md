@@ -118,13 +118,25 @@ Chris Olave — planned rest day then returned to practice,
 `active_prob≈0.88`) that look identical in a bare status-code table but
 are very different risk profiles once you read the actual reporting.
 
-## Next up
+## The model (all run from repo root with `PYTHONPATH=src`)
 
-Interval optimization (`scoring.optimal_interval()`) already solves,
-given a player's predicted mean/std, for the `[Low, High]` that
-maximizes *expected* Accuracy analytically rather than using a fixed
-percentile heuristic — validated against a 2M-sample Monte Carlo check.
-Next: the actual per-player mean/std estimator (empirical-Bayes
-shrinkage of this season's game logs toward career/positional priors,
-blended with opponent-adjusted defense numbers computed from the
-play-by-play data above).
+| File | Role |
+|---|---|
+| `scoring_rules.py` | The league's exact fantasy-point formula (half-PPR) |
+| `player_week_stats.py` | Weekly fantasy points per player/K/DEF computed from play-by-play |
+| `model.py` | Empirical-Bayes mean/std, opponent adjustment, news-signal mixture |
+| `scoring.optimal_interval()` | Analytic [Low, High] maximizing expected rubric Accuracy |
+| `optimize_lineup.py` | Ranks every candidate per slot (`ACCURACY_WEIGHT` = 0.65, `MIN_GAMES` = 3) |
+| `simulate.py` | Monte Carlo: empirical outcome shape, lineup-stability resampling, lineup-level simulation |
+| `data/news_signals_weekN.csv` | Hand-researched injury/role signals fed into the mixture |
+
+Two facts worth knowing before trusting any range:
+- The rubric (width cost 25 vs. miss cost 60) makes the optimal range cover
+  only the central ~17% of outcomes (41.7th to 58.3rd percentile). Narrow
+  ranges and ~1 of 6 slots landing inside them are expected, not a bug.
+- `simulate.py` shows the Normal assumption costs almost nothing (lineup
+  Accuracy 72.7 vs 72.6), but several slots (RB, WR, K, DEF) are statistical
+  ties between their top candidates. QB and TE are the only clear picks.
+
+Not modeled: correlation between players in the same game (the lineup's
+spread is understated if several players share a game).
