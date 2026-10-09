@@ -41,7 +41,10 @@ from model import (
 )
 
 SCHEDULE_URL = 'https://raw.githubusercontent.com/nflverse/nfldata/master/data/games.csv'
-MIN_GAMES = 2          # ignore players with fewer current-season games (too noisy to trust)
+MIN_GAMES = 3          # require a real track record, not just a low-variance 2-game read --
+                        # a player's predictive std already gets inflated for small samples
+                        # (see model.py), but that's a correction for ESTIMATION uncertainty,
+                        # not a substitute for actually having a track record. 3+ games only.
 TOP_N_PER_SLOT = 5      # how many ranked options to show per slot
 ACCURACY_WEIGHT = 0.65  # prioritize consistency/Accuracy over ceiling/Points (rubric itself is 0.5/0.5)
 
