@@ -1,0 +1,217 @@
+team,week,slot,player,low,high,actual
+1,1,QB,Joe Burrow,15,23.0,14.0
+1,1,RB,Breece Hall,10,16.0,18.8
+1,1,WR,Justin Jefferson,13,19.0,27.2
+1,1,TE,TJ Hockenson,7,13.0,11.6
+1,1,DEF,Eagles,6,9.0,5.0
+1,1,K,Ka'imi Fairbairn,6,9.0,9.0
+1,2,QB,Brock Purdy,17,22.0,28.0
+1,2,RB,Bijan Robinson,17,25.0,9.6
+1,2,WR,CeeDee Lamb,9,15.0,31.3
+1,2,TE,Trey McBride,10,18.0,14.1
+1,2,DEF,Buccaneers,7,12.0,4.0
+1,2,K,Brandon Aubrey,7,11.0,16.0
+1,3,QB,Lamar Jackson,20,24.0,20.0
+1,3,RB,Christian McCaffrey,16,22.0,19.6
+1,3,WR,Amon-Ra St. Brown,15,21.0,9.9
+1,3,TE,Dalton Kincaid,8,13.0,2.8
+1,3,DEF,Seahawks,11,15.0,4.0
+1,3,K,Chase McLaughlin,6,11.0,12.0
+1,4,QB,Jared Goff,17,22.0,20.0
+1,4,RB,Jahmyr Gibbs,24,30.0,15.7
+1,4,WR,Jaxon Smith-Njigba,22,30.0,10.1
+1,4,TE,Trey McBride,12,18.0,6.6
+1,4,DEF,Raiders,6,12.0,0.0
+1,4,K,Chase McLaughlin,7,13.0,2.0
+2,1,QB,Justin Herbert,14,21.0,12.9
+2,1,RB,Devon Achane,13,19.0,8.6
+2,1,WR,CeeDee Lamb,11,16.0,12.9
+2,1,TE,Trey McBride,13,20.0,20.0
+2,1,DEF,Jaguars,7,10.0,14.0
+2,1,K,Cam Little,8,14.0,12.0
+2,2,QB,Patrick Mahomes,20,26.0,28.7
+2,2,RB,Bijan Robinson,19,25.0,9.6
+2,2,WR,Jaxon Smith-Njigba,15,21.0,38.0
+2,2,TE,Dallas Goedert,7,13.0,0.9
+2,2,DEF,Buccaneers,8,12.0,4.0
+2,2,K,Ka'imi Fairbairn,7,12.0,6.0
+2,3,QB,Patrick Mahomes,20,27.0,15.1
+2,3,RB,Kenneth Walker,18,25.0,20.3
+2,3,WR,Jaxon Smith-Njigba,19,27.0,29.8
+2,3,TE,Trey McBride,13,20.0,12.0
+2,3,DEF,Seahawks,7,12.0,4.0
+2,3,K,Ryan Fitzgerald,6,12.0,15.0
+2,4,QB,Tyler Shough,18,25.0,15.5
+2,4,RB,Jahmyr Gibbs,23,31.0,15.7
+2,4,WR,Jaxon Smith-Njigba,22,30.0,10.1
+2,4,TE,Trey McBride,12,20.0,6.6
+2,4,DEF,Vikings,9,15.0,10.0
+2,4,K,Jason Myers,7,12.0,6.0
+3,1,QB,Joe Burrow,16,22.0,14.0
+3,1,RB,De'von Achane,13,19.0,8.6
+3,1,WR,Amon-Ra St. Brown,12,18.0,23.7
+3,1,TE,Trey McBride,10,16.0,20.0
+3,1,DEF,Steelers,7,11.0,19.0
+3,1,K,Cameron Dicker,8,12.0,2.0
+3,2,QB,Jayden Daniels,16,23.0,13.9
+3,2,RB,Bijan Robinson,18,24.0,9.6
+3,2,WR,CeeDee Lamb,14,22.0,31.3
+3,2,TE,Dallas Goedert,6,13.0,0.9
+3,2,DEF,Buccaneers,6,11.0,4.0
+3,2,K,Brandon Aubrey,7,12.0,16.0
+3,3,QB,Patrick Mahomes,14,30.0,15.1
+3,3,RB,Derrick Henry,12,26.0,21.4
+3,3,WR,Jaxon Smith-Njigba,14,26.0,29.8
+3,3,TE,Dalton Kincaid,10,20.0,2.8
+3,3,DEF,Seahawks,7,15.0,4.0
+3,3,K,Jason Myers,4,13.0,9.0
+3,4,QB,Josh Allen,15,30.0,18.4
+3,4,RB,Jahmyr Gibbs,16,28.0,15.7
+3,4,WR,Ja'Marr Chase,12,24.0,4.2
+3,4,TE,Brock Bowers,7,17.0,17.6
+3,4,DEF,Vikings,4,12.0,10.0
+3,4,K,Cam Little,5,12.0,14.0
+4,1,QB,Bo Nix,16,22.0,5.2
+4,1,RB,Saquon Barkley,17,23.0,8.5
+4,1,WR,Amon-Ra St. Brown,17,24.0,23.7
+4,1,TE,Trey McBride,13,18.0,20.0
+4,1,DEF,Raiders,4,8.0,14.0
+4,1,K,Cameron Dicker,7,11.0,2.0
+4,2,QB,Jacoby Brissett,9,12.0,5.7
+4,2,RB,Kenneth Walker,19,25.0,20.8
+4,2,WR,Jaxon Smith-Njigba,17,23.0,38.0
+4,2,TE,Trey McBride,15,21.0,14.1
+4,2,DEF,Eagles,12,16.0,4.0
+4,2,K,Ka'imi Fairbairn,7,12.0,6.0
+4,3,QB,Josh Allen,25,35.0,16.8
+4,3,RB,Kenneth Walker,18,22.0,20.3
+4,3,WR,Jaxon Smith-Njigba,20,25.0,29.8
+4,3,TE,Dalton Kincaid,14,20.0,2.8
+4,3,DEF,Seahawks,11,15.0,4.0
+4,3,K,Harrison Butker,8,11.0,5.0
+4,4,QB,Bryce Young,14,24.0,21.3
+4,4,RB,Derrick Henry,15,24.0,14.9
+4,4,WR,Amon-Ra St. Brown,19,29.0,11.5
+4,4,TE,Travis Kelce,13,22.0,2.5
+4,4,DEF,Ravens,8,18.0,7.0
+4,4,K,Jake Bates,6,12.0,18.0
+5,1,QB,Jalen Hurts,19,24.0,24.6
+5,1,RB,Jahmyr Gibbs,17,22.0,31.1
+5,1,WR,Ja'marr Chase,16,21.0,2.2
+5,1,TE,Colston Loveland,8,16.0,0.0
+5,1,DEF,Jaguars,8,12.0,14.0
+5,1,K,Cameron Dicker,8,12.0,2.0
+5,2,QB,Lamar Jackson,17,25.0,14.4
+5,2,RB,Christian McCaffrey,12,19.0,20.6
+5,2,WR,Malik Nabers,9,15.0,0.6
+5,2,TE,Trey McBride,9,13.0,14.1
+5,2,DEF,Ravens,5,11.0,5.0
+5,2,K,Cameron Dicker,7,11.0,1.0
+5,3,QB,Josh Allen,20,27.0,16.8
+5,3,RB,Jahmyr Gibbs,18,25.0,37.9
+5,3,WR,Amon-Ra St. Brown,12,20.0,9.9
+5,3,TE,Trey McBride,9,16.0,12.0
+5,3,DEF,Kansas City Chiefs,6,9.0,7.0
+5,3,K,Eddy Pineiro,6,12.0,8.0
+5,4,QB,Pat Mahomes,18,26.0,17.0
+5,4,RB,Jonathan Taylor,16,24.0,22.2
+5,4,WR,Jaxon Smith-Njigba,22,31.0,10.1
+5,4,TE,Brock Bowers,9,16.0,17.6
+5,4,DEF,Minnesota Vikings,6,11.0,10.0
+5,4,K,Will Reichard,6,12.0,19.0
+6,1,QB,Joe Burrow,17,21.0,14.0
+6,1,RB,Bijan Robinson,16,22.0,27.3
+6,1,WR,Amon Ra St Brown,12,18.0,23.7
+6,1,TE,Tyler Warren,8,12.0,8.8
+6,1,DEF,Chargers,7,9.0,0.0
+6,1,K,Chris Boswell,7,10.0,8.0
+6,2,QB,Brock Purdy,16,22.0,28.0
+6,2,RB,Bijan Robinson,20,26.0,9.6
+6,2,WR,Puka Nacua,12,18.0,0.0
+6,2,TE,Likely,10,14.0,5.8
+6,2,DEF,Buccaneers,9,11.0,4.0
+6,2,K,Chris Boswell,7,10.0,4.0
+6,3,QB,Josh Allen,23,27.0,16.8
+6,3,RB,Jahmyr Gibbs,20,25.0,37.9
+6,3,WR,Jaxson Smith-Njigba,16,22.0,29.8
+6,3,TE,Trey McBride,11,15.0,12.0
+6,3,DEF,Seahawks,8,11.0,4.0
+6,3,K,Harrison Butker,8,11.0,5.0
+6,4,QB,Tyler Shough,16,24.0,15.5
+6,4,RB,Jahmyr Gibbs,22,30.0,15.7
+6,4,WR,Jaxon Smith-Njigba,18,26.0,10.1
+6,4,TE,Trey McBride,11,15.0,6.6
+6,4,DEF,Vikings,6,9.0,10.0
+6,4,K,Ka'imi Fairbairn,8,11.0,16.0
+7,1,QB,Joe Burrow,19,26.0,14.0
+7,1,RB,Ashton Jeanty,16,21.0,29.7
+7,1,WR,Jamar Chase,18,24.0,2.2
+7,1,TE,Trey McBride,10,15.0,20.0
+7,1,DEF,Steelers,10,14.0,19.0
+7,1,K,Brandon Aubrey,9,13.0,2.0
+7,2,QB,Lamar Jackson,22,27.0,14.4
+7,2,RB,Bijan Robinson,25,30.0,9.6
+7,2,WR,Jaxson-Smith Njigba,15,20.0,38.0
+7,2,TE,Loveland,8,14.0,0.8
+7,2,DEF,Buccaneers,9,14.0,4.0
+7,2,K,Cameron Dicker,5,10.0,1.0
+7,3,QB,Lamar Jackson,15,23.0,20.0
+7,3,RB,Jahmyr Gibbs,19,26.0,37.9
+7,3,WR,Chris Olave,11,17.0,15.2
+7,3,TE,Dalton Schultz,8,14.0,4.5
+7,3,DEF,Chiefs,7,10.0,7.0
+7,3,K,Jason Myers,6,10.0,9.0
+7,4,QB,Joe Burrow,15,23.0,23.6
+7,4,RB,Jonathan Taylor,17,26.0,22.2
+7,4,WR,Amon-Ra St. Brown,16,24.0,11.5
+7,4,TE,Brock Bowers,10,16.0,17.6
+7,4,DEF,Seahawks,5,9.0,12.0
+7,4,K,Will Reichard,6,10.0,19.0
+8,1,QB,Jalen Hurts,20,24.0,24.6
+8,1,RB,Jahmyr Gibbs,18,24.0,31.1
+8,1,WR,Jamarr Chase,18,22.0,2.2
+8,1,TE,Colston Loveland,10,14.0,0.0
+8,1,DEF,Chargers,6,9.0,0.0
+8,1,K,Brandon Aubrey,7,10.0,2.0
+8,2,QB,Prescott,18,24.0,29.6
+8,2,RB,Kenneth Walker,16,24.0,20.8
+8,2,WR,Jaxon Smith-Njigba,15,23.0,38.0
+8,2,TE,George Kittle,7,14.0,16.0
+8,2,DEF,49ers,4,11.0,9.0
+8,2,K,Cam Little,6,11.0,7.0
+8,3,QB,Tyler Shough,16,24.0,23.6
+8,3,RB,James Cook,15,23.0,19.4
+8,3,WR,Justin Jefferson,16,22.0,4.2
+8,3,TE,Sam LaPorta,8,16.0,5.9
+8,3,DEF,Chiefs,5,11.0,7.0
+8,3,K,Ka'imi Fairbairn,6,12.0,5.0
+8,4,QB,Josh Allen,18,25.0,18.4
+8,4,RB,Jahmyr Gibbs,22,30.0,15.7
+8,4,WR,Jaxon Smith-Njigba,18,24.0,10.1
+8,4,TE,Travis Kelce,7,14.0,2.5
+8,4,DEF,Seahawks,6,12.0,12.0
+8,4,K,Tyler Loop,6,13.0,7.0
+9,1,QB,Joe Burrow,20,26.0,14.0
+9,1,RB,Saquon Barkley,16,22.5,8.5
+9,1,WR,Amon-Ra St. Brown,16,24.0,23.7
+9,1,TE,Dallas Goedert,10,14.0,21.7
+9,1,DEF,TEN,5,9.0,-1.0
+9,1,K,Jake Bates,7,11.0,7.0
+9,2,QB,Josh Allen,24,33.0,39.9
+9,2,RB,Bijan Robinson,17,26.0,9.6
+9,2,WR,Puka Nacua,13,22.0,0.0
+9,2,TE,Trey McBride,15,21.0,14.1
+9,2,DEF,Buccaneers,8,14.0,4.0
+9,2,K,Cameron Dicker,8,14.0,1.0
+9,3,QB,Lamar Jackson,17,26.0,20.0
+9,3,RB,Kenneth Walker,18,27.0,20.3
+9,3,WR,Chris Olave,17,26.0,15.2
+9,3,TE,Tyler Warren,10,16.0,10.2
+9,3,DEF,49ers,5,11.0,0.0
+9,3,K,Jason Myers,5,11.0,9.0
+9,4,QB,Josh Allen,26,35.0,18.4
+9,4,RB,Bijan Robinson,18,27.0,27.2
+9,4,WR,Chris Olave,15,24.0,15.6
+9,4,TE,George Kittle,10,16.0,15.0
+9,4,DEF,MIN,7,13.0,10.0
+9,4,K,Ka'imi Fairbairn,5,11.0,16.0
