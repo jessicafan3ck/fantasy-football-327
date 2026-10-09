@@ -72,6 +72,9 @@ def project_week(predict_week, off26, kick26, def26, off25, sched26, has_actual)
     for position, player, team in ROSTER:
         opp = opp_of.get(team)
         if position == 'K':
+            # kickers aren't roster-joined (no player_id merge), so last-name
+            # substring is still used here -- but there's only one kicker per
+            # team, so it's unambiguous.
             row = kick_blend[kick_blend['team'].str.contains(team, case=False, na=False) |
                               kick_blend['player_name'].str.contains(player.split()[-1], case=False, na=False)]
             row = row.sort_values('n_games', ascending=False).head(1)
@@ -82,8 +85,15 @@ def project_week(predict_week, off26, kick26, def26, off25, sched26, has_actual)
             ratio = float(opp_row['ratio'].iloc[0]) if len(opp_row) else 1.0
         else:
             role = 'QB' if position == 'QB' else 'SKILL'
-            row = off_blend[(off_blend['player_name'].str.contains(player.split()[-1], case=False, na=False)) &
-                             (off_blend['role'] == role) & (off_blend['team'] == team)]
+            # EXACT full-name match within team -- substring-on-last-name
+            # silently matched the wrong player before (e.g. "Robinson" on
+            # ATL hits both Bijan Robinson AND backup Brian Robinson; the
+            # wrong one was winning and tanking the backtest numbers).
+            candidates = off_blend[(off_blend['role'] == role) & (off_blend['team'] == team)]
+            row = candidates[candidates['player_name'] == player]
+            if len(row) == 0:  # fall back to substring only if no exact hit
+                row = candidates[candidates['player_name'].str.contains(
+                    player.split()[-1], case=False, na=False)]
             opp_row = off_opp[(off_opp['defteam'] == opp) & (off_opp['role'] == role)]
             ratio = float(opp_row['ratio'].iloc[0]) if len(opp_row) else 1.0
 
@@ -103,9 +113,12 @@ def project_week(predict_week, off26, kick26, def26, off25, sched26, has_actual)
                 actual_row = def26[(def26['week'] == predict_week) & (def26['team'] == team)]
             else:
                 role = 'QB' if position == 'QB' else 'SKILL'
-                actual_row = off26[(off26['week'] == predict_week) & (off26['team'] == team) &
-                                    (off26['role'] == role) &
-                                    (off26['player_name'].str.contains(player.split()[-1], case=False, na=False))]
+                candidates = off26[(off26['week'] == predict_week) & (off26['team'] == team) &
+                                    (off26['role'] == role)]
+                actual_row = candidates[candidates['player_name'] == player]
+                if len(actual_row) == 0:
+                    actual_row = candidates[candidates['player_name'].str.contains(
+                        player.split()[-1], case=False, na=False)]
             actual = actual_row['fantasy_points'].iloc[0] if len(actual_row) else None
 
         fixed_low, fixed_high = WEEK4_BAND[player]
