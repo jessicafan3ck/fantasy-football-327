@@ -9,11 +9,21 @@ directly from the two halves of Total Score:
     Normalized Points is just our raw point total vs. the field's --
     the single best lever we control is projecting the highest mean,
     not just the safest one.
-combined_score = 0.5 * expected_accuracy + 0.5 * points_score, where
-points_score re-scales projected mean to a 0-100 range using the spread
-of ALL candidates at that slot this week (the same idea as Normalized
-Points, just applied within the position instead of across the whole
-league).
+combined_score = ACCURACY_WEIGHT * expected_accuracy + (1-ACCURACY_WEIGHT) * points_score,
+where points_score re-scales projected mean to a 0-100 range using the
+spread of ALL candidates at that slot this week (the same idea as
+Normalized Points, just applied within the position instead of across
+the whole league).
+
+The rubric itself weights Accuracy and Points 50/50 -- but "anything
+could happen" week to week, and expected_accuracy already prices in
+consistency (optimal_interval has to widen the range for a high-std
+player, which costs it Accuracy even at its best achievable interval).
+ACCURACY_WEIGHT > 0.5 leans further into that: it explicitly favors the
+more PREDICTABLE player over the merely higher-ceiling one, which is
+the safer bet when we don't actually know which boom/bust player booms.
+We also surface `cv` (std/mean, "coefficient of variation") directly so
+consistency is visible, not just baked into one score.
 
 Run: python src/optimize_lineup.py
 """
@@ -33,6 +43,7 @@ from model import (
 SCHEDULE_URL = 'https://raw.githubusercontent.com/nflverse/nfldata/master/data/games.csv'
 MIN_GAMES = 2          # ignore players with fewer current-season games (too noisy to trust)
 TOP_N_PER_SLOT = 5      # how many ranked options to show per slot
+ACCURACY_WEIGHT = 0.65  # prioritize consistency/Accuracy over ceiling/Points (rubric itself is 0.5/0.5)
 
 
 def _opponent_map(sched26, week):
@@ -55,7 +66,8 @@ def _rank_slot(candidates: pd.DataFrame) -> pd.DataFrame:
     c['expected_accuracy'] = recs.apply(lambda d: d['expected_accuracy'])
     max_mean = c['adj_mean'].max()
     c['points_score'] = (c['adj_mean'] / max_mean * 100).clip(lower=0)
-    c['combined_score'] = 0.5 * c['expected_accuracy'] + 0.5 * c['points_score']
+    c['cv'] = (c['std'] / c['adj_mean'].abs().clip(lower=0.1)).round(2)  # coefficient of variation
+    c['combined_score'] = ACCURACY_WEIGHT * c['expected_accuracy'] + (1 - ACCURACY_WEIGHT) * c['points_score']
     return c.sort_values('combined_score', ascending=False)
 
 
@@ -133,12 +145,13 @@ def main():
 
     best_lineup = []
     print("\n" + "=" * 100)
-    print(f"WEEK {predict_week} LINEUP OPTIMIZATION -- ranked by 0.5*expected_accuracy + 0.5*points_score")
+    print(f"WEEK {predict_week} LINEUP OPTIMIZATION -- ranked by {ACCURACY_WEIGHT}*expected_accuracy + "
+          f"{round(1-ACCURACY_WEIGHT,2)}*points_score (consistency-weighted)")
     print("=" * 100)
     for slot in ['QB', 'RB', 'WR', 'TE', 'K', 'DEF']:
         c = results[slot]
         print(f"\n--- {slot} (top {TOP_N_PER_SLOT}) ---")
-        cols = ['player_name', 'team', 'opponent', 'n_games', 'adj_mean', 'std', 'low', 'high',
+        cols = ['player_name', 'team', 'opponent', 'n_games', 'adj_mean', 'std', 'cv', 'low', 'high',
                 'expected_accuracy', 'points_score', 'combined_score']
         print(c[cols].head(TOP_N_PER_SLOT).round(1).to_string(index=False))
         if len(c):
