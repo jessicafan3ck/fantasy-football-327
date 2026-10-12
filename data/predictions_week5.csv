@@ -1,0 +1,22 @@
+set,week,slot,player,team,low,high
+model_final,5,QB,Jared Goff,DET,24.1,27.1
+model_final,5,RB,Jahmyr Gibbs,DET,21.9,26.3
+model_final,5,WR,Chris Olave,NO,11.4,13.4
+model_final,5,TE,Trey McBride,ARI,17.0,19.5
+model_final,5,K,M.Gay,LV,8.8,10.5
+model_final,5,DEF,LV,LV,6.6,9.5
+model_alt_ties,5,WR,Amon-Ra St. Brown,DET,16.2,20.2
+model_alt_ties,5,K,S.Shrader,IND,9.4,11.5
+model_alt_flowers_news_adj,5,WR,Zay Flowers,BAL,10.6,13.2
+research_blind,5,QB,Jared Goff,DET,23.0,29.0
+research_blind,5,RB,Jahmyr Gibbs,DET,17.0,27.0
+research_blind,5,WR,Zay Flowers,BAL,7.0,15.0
+research_blind,5,TE,Trey McBride,ARI,15.0,21.0
+research_blind,5,K,S.Shrader,IND,6.0,12.0
+research_blind,5,DEF,LV,LV,4.0,10.0
+model_sim_ranges,5,QB,Jared Goff,DET,24.0,27.1
+model_sim_ranges,5,RB,Jahmyr Gibbs,DET,19.9,24.8
+model_sim_ranges,5,WR,Chris Olave,NO,10.7,12.8
+model_sim_ranges,5,TE,Trey McBride,ARI,15.6,18.3
+model_sim_ranges,5,K,M.Gay,LV,8.1,10.5
+model_sim_ranges,5,DEF,LV,LV,6.0,8.8
