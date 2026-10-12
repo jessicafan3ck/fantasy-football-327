@@ -5,8 +5,13 @@ points for any player/defense from play-by-play aggregates, so our
 model predicts the SAME number the rubric actually scores on.
 """
 
+import math
+
 # ---- Offense (QB / RB / WR / TE) ----
-PASS_YD = 1 / 25      # 1 pt per 25 passing yards
+# 1 pt per FULL 25 passing yards (whole steps, not 0.04/yd). Verified against
+# the class's recorded QB actuals: floor() matched 18 of 21 exactly, while the
+# fractional version was off by up to ~1 pt on nearly every row.
+PASS_25_PTS = 1
 PASS_TD = 4
 INT_THROWN = -2
 PASS_2PT = 2
@@ -69,7 +74,7 @@ def yards_allowed_score(yards_allowed: float) -> float:
 
 def qb_points(pass_yds, pass_td, interceptions, pass_2pt,
               rush_yds=0, rush_td=0, rush_2pt=0, fumbles_lost=0):
-    return (pass_yds * PASS_YD + pass_td * PASS_TD + interceptions * INT_THROWN
+    return (max(math.floor(pass_yds / 25), 0) * PASS_25_PTS + pass_td * PASS_TD + interceptions * INT_THROWN
             + pass_2pt * PASS_2PT + rush_yds * RUSH_YD + rush_td * RUSH_TD
             + rush_2pt * RUSH_2PT + fumbles_lost * DEF_FUML)
 

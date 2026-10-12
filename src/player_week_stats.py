@@ -54,6 +54,12 @@ def build_offense_weekly(pbp: pd.DataFrame) -> pd.DataFrame:
     pbp = pbp[pbp['season_type'] == 'REG'].copy()
     key = ['season', 'week']
 
+    # Fumbles LOST, credited to whoever fumbled (a QB on a sack/pass play, a
+    # receiver, a rusher) -- not just rushers. Each is -2 under the league rules.
+    fum = (pbp[(pbp['fumble_lost'] == 1) & pbp['fumbled_1_player_id'].notna()]
+           .groupby(key + ['fumbled_1_player_id']).size().rename('fum_lost').reset_index()
+           .rename(columns={'fumbled_1_player_id': 'player_id'}))
+
     # ---- Passing (QB) ----
     pass_df = pbp[pbp['passer_player_id'].notna()].copy()
     pass_2pt = pass_df[(pass_df['two_point_attempt'] == 1) &
@@ -86,8 +92,11 @@ def build_offense_weekly(pbp: pd.DataFrame) -> pd.DataFrame:
                [key + ['passer_player_id', 'rush_yds', 'rush_td', 'rush_2pt', 'fumbles_lost']],
         on=key + ['passer_player_id'], how='left'
     )
-    for c in ['rush_yds', 'rush_td', 'rush_2pt', 'fumbles_lost']:
+    for c in ['rush_yds', 'rush_td', 'rush_2pt']:
         qb[c] = qb[c].fillna(0)
+    qb = qb.drop(columns=['fumbles_lost']).merge(
+        fum.rename(columns={'player_id': 'passer_player_id'}), on=key + ['passer_player_id'], how='left')
+    qb['fumbles_lost'] = qb['fum_lost'].fillna(0)
     qb['fantasy_points'] = qb.apply(
         lambda r: qb_points(r['pass_yds'], r['pass_td'], r['interceptions'], r['pass_2pt'],
                              r['rush_yds'], r['rush_td'], r['rush_2pt'], r['fumbles_lost']), axis=1)
@@ -116,6 +125,8 @@ def build_offense_weekly(pbp: pd.DataFrame) -> pd.DataFrame:
     )
     for c in ['rush_yds', 'rush_td', 'rush_2pt', 'fumbles_lost', 'rec', 'rec_yds', 'rec_td', 'rec_2pt']:
         skill[c] = skill[c].fillna(0)
+    skill = skill.drop(columns=['fumbles_lost']).merge(fum, on=key + ['player_id'], how='left')
+    skill['fumbles_lost'] = skill['fum_lost'].fillna(0)
     skill['fantasy_points'] = skill.apply(
         lambda r: rush_rec_points(r['rush_yds'], r['rush_td'], r['rush_2pt'], r['rec'],
                                    r['rec_yds'], r['rec_td'], r['rec_2pt'], r['fumbles_lost']),

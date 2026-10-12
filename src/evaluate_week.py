@@ -79,6 +79,19 @@ def main():
         return float(d['fantasy_points'].iloc[0]) if len(d) else np.nan
 
     preds['actual'] = [actual_of(r) for r in preds.itertuples()]
+    preds['source'] = np.where(preds['actual'].notna(), 'play-by-play', '')
+
+    # Optional hand-entered actuals (e.g. from a box score) for games whose
+    # play-by-play hasn't posted yet. Used ONLY where pbp has nothing; swap to
+    # play-by-play automatically once it posts, and flag the source.
+    import os
+    mpath = f'data/manual_actuals_week{args.week}.csv'
+    if os.path.exists(mpath):
+        man = pd.read_csv(mpath).set_index(['player', 'team'])
+        for i, r in preds[preds['actual'].isna()].iterrows():
+            if (r['player'], r['team']) in man.index:
+                preds.loc[i, 'actual'] = float(man.loc[(r['player'], r['team']), 'actual'])
+                preds.loc[i, 'source'] = 'box score (manual)'
     preds['game'] = preds['team'].map(status)
     done = preds.dropna(subset=['actual']).copy()
     scored = score_predictions(done.assign(team=1))   # score_predictions only needs slot/low/high/actual
@@ -86,7 +99,8 @@ def main():
     print("=" * 100)
     print(f"WEEK {args.week} -- predictions vs. actual (half-PPR league scoring)")
     print("=" * 100)
-    show = scored[['set', 'slot', 'player', 'low', 'high', 'actual', 'hit', 'miss', 'accuracy']].copy()
+    scored['source'] = done['source'].values
+    show = scored[['set', 'slot', 'player', 'low', 'high', 'actual', 'hit', 'miss', 'accuracy', 'source']].copy()
     show['result'] = np.where(scored['hit'], 'HIT', np.where(scored['over'], 'OVER', 'UNDER'))
     print(show.round(1).to_string(index=False))
 
