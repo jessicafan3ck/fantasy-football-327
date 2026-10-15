@@ -164,7 +164,12 @@ def main():
     def26 = build_defense_weekly(pbp26, sched26)
     off25 = build_offense_weekly(pbp25)
 
-    predict_week = 5
+    import sys
+    # default: the first week that still has unplayed games; override with --week N
+    if '--week' in sys.argv:
+        predict_week = int(sys.argv[sys.argv.index('--week') + 1])
+    else:
+        predict_week = int(sched26[sched26['home_score'].isna()]['week'].min())
     news_path = f'data/news_signals_week{predict_week}.csv'
     news = load_news_signals(news_path) if os.path.exists(news_path) else None
     if news is not None:

@@ -61,7 +61,7 @@ from optimize_lineup import (
 )
 from scoring import SCALE, WIDTH_COST_NUM, MISS_COST_NUM
 
-PREDICT_WEEK = 5
+PREDICT_WEEK = None   # set in main(): --week N, default = first week with unplayed games
 TOP_K = 8                 # candidates per slot carried into the simulation
 RATIO_SD = 0.08           # sd of log-noise on the opponent adjustment (judgment call)
 SLOTS = ['QB', 'RB', 'WR', 'TE', 'K', 'DEF']
@@ -175,10 +175,13 @@ def main():
     ap.add_argument('--seed', type=int, default=327)
     ap.add_argument('--resamples', type=int, default=2500)
     ap.add_argument('--iters', type=int, default=100_000)
+    ap.add_argument('--week', type=int, default=0)
     args = ap.parse_args()
     rng = np.random.default_rng(args.seed)
 
     ctx = build_context()
+    global PREDICT_WEEK
+    PREDICT_WEEK = args.week or int(ctx['s26'][ctx['s26']['home_score'].isna()]['week'].min())
     pools = build_shape_pools(ctx['off25'], ctx['kick25'], ctx['def25'])
 
     print("\nEmpirical outcome shape from 2025 starters (Normal would be skew 0.00):")
