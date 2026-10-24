@@ -43,12 +43,26 @@ from news_signals import load_news_signals
 import os
 
 SCHEDULE_URL = 'https://raw.githubusercontent.com/nflverse/nfldata/master/data/games.csv'
-MIN_GAMES = 3          # require a real track record, not just a low-variance 2-game read --
+MIN_GAMES = 4          # (raised 3->4 after Wk 6: both big overestimates, Nacua and Bowers, were 3-game samples)
+                        # require a real track record, not just a low-variance 2-game read --
                         # a player's predictive std already gets inflated for small samples
                         # (see model.py), but that's a correction for ESTIMATION uncertainty,
                         # not a substitute for actually having a track record. 3+ games only.
 TOP_N_PER_SLOT = 5      # how many ranked options to show per slot
-ACCURACY_WEIGHT = 0.65  # prioritize consistency/Accuracy over ceiling/Points (rubric itself is 0.5/0.5)
+BEST_REF = 110.0        # typical best-team weekly raw points, used to convert points into Total Score units
+RISK_AVERSION = 0.75    # volatility price: players are ranked on (mean - 0.75*std), not the raw mean.
+                        # Added Oct 24 after variable players (Allen 39.9/18.4/18.1, Nacua 0/11) burned us.
+                        # Backtest (src/backtest_weights.py, Wks 4-6): ceiling-chasing = 66.8 Total Score, avg
+                        # player std 7.0; this setting = 67.9, std 6.1. Simply cranking ACCURACY_WEIGHT to 0.8
+                        # instead picks safe-but-tiny scorers (Godwin 7.5 pts) and LOSES Total Score (65.4).
+ACCURACY_WEIGHT = 0.65  # legacy; no longer used for ranking (kept so old imports don't break)
+
+
+def objective(exp_acc, mean, std):
+    """Marginal Total Score of one slot. Total = avg(Accuracy, NormPoints) so a slot's
+    expected accuracy counts exp_acc/12 and its points count 50*points/BEST_REF.
+    Volatility is priced by using the conservative mean (mean - RISK_AVERSION*std)."""
+    return exp_acc / 12 + 50 * (mean - RISK_AVERSION * std) / BEST_REF
 
 
 def _opponent_map(sched26, week):
@@ -91,7 +105,7 @@ def _rank_slot(candidates: pd.DataFrame, news: pd.DataFrame = None) -> pd.DataFr
     max_mean = c['adj_mean'].max()
     c['points_score'] = (c['adj_mean'] / max_mean * 100).clip(lower=0)
     c['cv'] = (c['std'] / c['adj_mean'].abs().clip(lower=0.1)).round(2)  # coefficient of variation
-    c['combined_score'] = ACCURACY_WEIGHT * c['expected_accuracy'] + (1 - ACCURACY_WEIGHT) * c['points_score']
+    c['combined_score'] = objective(c['expected_accuracy'], c['adj_mean'], c['std'])
     return c.sort_values('combined_score', ascending=False)
 
 
@@ -179,8 +193,8 @@ def main():
 
     best_lineup = []
     print("\n" + "=" * 100)
-    print(f"WEEK {predict_week} LINEUP OPTIMIZATION -- ranked by {ACCURACY_WEIGHT}*expected_accuracy + "
-          f"{round(1-ACCURACY_WEIGHT,2)}*points_score (consistency-weighted)")
+    print(f"WEEK {predict_week} LINEUP OPTIMIZATION -- ranked by expected Total Score gain "
+          f"(accuracy/12 + points on mean - {RISK_AVERSION}*std)")
     print("=" * 100)
     for slot in ['QB', 'RB', 'WR', 'TE', 'K', 'DEF']:
         c = results[slot]

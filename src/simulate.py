@@ -57,7 +57,7 @@ from player_week_stats import (
 from model import SHRINKAGE_K, VARIANCE_SHRINKAGE_K
 from news_signals import load_news_signals
 from optimize_lineup import (
-    optimize_week, ACCURACY_WEIGHT, SCHEDULE_URL, MIN_GAMES,
+    optimize_week, objective, SCHEDULE_URL, MIN_GAMES,
 )
 from scoring import SCALE, WIDTH_COST_NUM, MISS_COST_NUM
 
@@ -146,6 +146,12 @@ def exp_mean(scenarios):
     return sum(w * m for w, m, _ in scenarios)
 
 
+def mix_std(scenarios):
+    """Std of the scenario mixture (news risk widens it, so it is priced by the volatility penalty)."""
+    mu = exp_mean(scenarios)
+    return float(np.sqrt(max(sum(w * (s ** 2 + m ** 2) for w, m, s in scenarios) - mu ** 2, 1e-9)))
+
+
 # --------------------------------------------------------------------------
 # data context
 # --------------------------------------------------------------------------
@@ -226,10 +232,10 @@ def main():
             sc, lo, hi, ea = score_candidate(r, r['adj_mean'], r['std'], slot)
             rows.append(dict(player=r['player_name'], team=r['team'], opp=r['opponent'],
                              n_games=int(r['n_games']), mean=exp_mean(sc), low=lo, high=hi,
-                             exp_acc=ea, news=r['player_name'] in news_by_player))
+                             exp_acc=ea, std=mix_std(sc), news=r['player_name'] in news_by_player))
         b = pd.DataFrame(rows)
         b['points_score'] = (b['mean'] / b['mean'].max() * 100).clip(lower=0)
-        b['combined'] = ACCURACY_WEIGHT * b['exp_acc'] + (1 - ACCURACY_WEIGHT) * b['points_score']
+        b['combined'] = objective(b['exp_acc'], b['mean'], b['std'])
         base_rows[slot] = b.sort_values('combined', ascending=False).reset_index(drop=True)
 
     # ---- stability: resample uncertain inputs, re-rank, count wins
@@ -249,10 +255,9 @@ def main():
                 s_r = r['std'] * np.sqrt(rng.chisquare(df_v) / df_v)
                 sc = scenarios_for(m_r, s_r, news_by_player.get(r['player_name']))
                 _, _, ea = solve_interval(sc, SCALE[slot], pools[slot], n_grid=120)
-                recs.append((r['player_name'], exp_mean(sc), ea))
-            d = pd.DataFrame(recs, columns=['player', 'mean', 'ea'])
-            d['pts'] = (d['mean'] / d['mean'].max() * 100).clip(lower=0)
-            d['combined'] = ACCURACY_WEIGHT * d['ea'] + (1 - ACCURACY_WEIGHT) * d['pts']
+                recs.append((r['player_name'], exp_mean(sc), mix_std(sc), ea))
+            d = pd.DataFrame(recs, columns=['player', 'mean', 'sd', 'ea'])
+            d['combined'] = objective(d['ea'], d['mean'], d['sd'])
             wins[slot][d.loc[d['combined'].idxmax(), 'player']] += 1
             comb_sum[slot] += d.set_index('player')['combined']
 

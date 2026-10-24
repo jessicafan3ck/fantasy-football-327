@@ -126,7 +126,9 @@ are very different risk profiles once you read the actual reporting.
 | `player_week_stats.py` | Weekly fantasy points per player/K/DEF computed from play-by-play |
 | `model.py` | Empirical-Bayes mean/std, opponent adjustment, news-signal mixture |
 | `scoring.optimal_interval()` | Analytic [Low, High] maximizing expected rubric Accuracy |
-| `optimize_lineup.py` | Ranks every candidate per slot (`ACCURACY_WEIGHT` = 0.65, `MIN_GAMES` = 3) |
+| `optimize_lineup.py` | Ranks every candidate per slot by marginal Total Score: `exp_accuracy/12 + 50*(mean - 0.75*std)/110` (`RISK_AVERSION` = 0.75, `MIN_GAMES` = 4) |
+| `backtest_weights.py` | Re-ranks Weeks 4-6 under different consistency settings and scores them against real results |
+| `parse_class_workbook.py` | Turns the class's xlsx (one sheet per team) into a tidy CSV; `data/class_predictions_wk1-6.csv` is the result |
 | `simulate.py` | Monte Carlo: empirical outcome shape, lineup-stability resampling, lineup-level simulation |
 | `data/news_signals_weekN.csv` | Hand-researched injury/role signals fed into the mixture |
 
@@ -140,3 +142,17 @@ Two facts worth knowing before trusting any range:
 
 Not modeled: correlation between players in the same game (the lineup's
 spread is understated if several players share a game).
+
+## Consistency tuning (Oct 24, after Weeks 5-6)
+
+Team 9 was hurt by volatile picks (Allen 39.9 / 18.4 / 18.1; Nacua 0 / 11; Las Vegas DEF -6).
+Backtest on Weeks 4-6 (`backtest_weights.py`):
+
+| Setting | Accuracy | Raw pts | Avg player std | Est. Total |
+|---|---|---|---|---|
+| old: 0.65 accuracy weight | 60.2 | 82.3 | 7.0 | 66.8 |
+| accuracy weight 0.80 | 70.0 | 69.1 | 4.9 | 65.4 |
+| rubric objective, risk aversion 0.75 (current) | 63.7 | 81.9 | 6.1 | 67.9 |
+
+Just raising the accuracy weight buys Accuracy by picking safe low scorers and gives back more in Normalized Points.
+Pricing volatility directly (rank on mean - 0.75*std) keeps points and is steadier. Only 3 backtest weeks, so treat as directional.
