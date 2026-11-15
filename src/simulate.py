@@ -182,6 +182,7 @@ def main():
     ap.add_argument('--resamples', type=int, default=2500)
     ap.add_argument('--iters', type=int, default=100_000)
     ap.add_argument('--week', type=int, default=0)
+    ap.add_argument('--exclude', nargs='*', default=[], help='player names to drop (e.g. usage-limit)')
     args = ap.parse_args()
     rng = np.random.default_rng(args.seed)
 
@@ -205,6 +206,13 @@ def main():
                                  ctx['off25'], ctx['s26'], news=None)
     cands_prod = optimize_week(PREDICT_WEEK, ctx['off26'], ctx['kick26'], ctx['def26'],
                                ctx['off25'], ctx['s26'], news=news)
+
+    if args.exclude:
+        ex = set(args.exclude)
+        for d in (cands_nonews, cands_prod):
+            for s in list(d):
+                d[s] = d[s][~d[s]['player_name'].isin(ex)].reset_index(drop=True)
+        print('Excluded:', sorted(ex))
 
     news_by_player = {}
     if news is not None:
